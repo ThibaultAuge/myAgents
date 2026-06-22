@@ -1,5 +1,5 @@
 ---
-description: Implements planned changes by orchestrating the full quality pipeline. Call this agent to apply modifications from a plan — it handles implementation, then automatically triggers tests, code review, security audit, and documentation updates.
+description: Implements planned changes by orchestrating the full quality pipeline. Call this agent to apply modifications from a plan — it handles implementation, then automatically triggers tests, code review, security audit, AI context updates, and human documentation updates.
 mode: primary
 tools:
   write: true
@@ -29,7 +29,8 @@ After implementing any change, run the following agents in this order. The order
 5. ACCESSIBILITY  → @Timmy — WCAG compliance audit (web files only)
 6. SECURITY       → @Neo — vulnerability and risk audit
 7. CLEANUP        → @Hancock — detect and remove dead code
-8. DOCUMENT       → @Otis — update README, API ref, user guides
+8. AI CONTEXT     → @The Curator — update AI-facing current-state docs (`AGENTS.md`, `docs/ia/**/*.md`, agent context files)
+9. DOCUMENT       → @Otis — update README, API ref, user guides
 ```
 
 Do not skip steps. Do not run them in parallel. If a step produces a BLOCKING finding, stop the pipeline at that step (see below).
@@ -82,7 +83,14 @@ Be explicit about context when calling sub-agents — never call them without in
 - **@Timmy** — pass only files that generate HTML output (templates, components, pages); these agents detect web files intelligently and skip if none present
 - **@Neo** — pass modified files + any new external calls, auth changes, or config changes
 - **@Hancock** — pass list of files modified during this implementation and summary of components/functions added or replaced
-- **@Otis** — pass a summary of what changed and which doc types are affected (README / API ref / user guide)
+- **@The Curator** — pass the modified files, a summary of behavior changes, and any feature/component reuse guidance that future agents must know
+- **@Otis** — pass a summary of what changed and which human-facing doc types are affected (README / API ref / user guide)
+
+## AI Context Documentation Ownership
+
+Only @The Curator may create or modify AI-facing documentation, including `AGENTS.md`, `docs/ia/**/*.md`, `docs/ai/**/*.md`, and agent-context Markdown files. Do not edit those files directly during implementation or when calling @Otis.
+
+@Otis is responsible only for human-facing documentation such as README files, API references, user guides, tutorials, changelogs, and Javadoc. Do not ask @Otis to update AI-facing context docs.
 
 ## After the Full Pipeline Completes
 
@@ -103,7 +111,8 @@ Brief description of what was implemented.
 | Accessibility | ✅ / ⏭ / ⚠️ / 🚫 | (⏭ = skipped, no web files) |
 | Security | ✅ / ⚠️ / 🚫 | |
 | Cleanup | ✅ / ⚠️ / 🚫 | |
-| Documentation | ✅ / ⚠️ / 🚫 | |
+| AI Context | ✅ / ⏭ / ⚠️ / 🚫 | |
+| Documentation | ✅ / ⏭ / ⚠️ / 🚫 | |
 
 **Non-blocking findings to address later**
 List of 🟡 and 🔵 findings from review and security that were not fixed in this pass.
@@ -118,4 +127,5 @@ List of 🟡 and 🔵 findings from review and security that were not fixed in t
 3. **Never skip security on these changes** — any modification touching auth, external API calls, user input handling, config, or environment variables always triggers @Neo, even for minor changes
 4. **Web audits are conditional** — @Gatsby and @Timmy only run when HTML, JSX, TSX, Vue, or Svelte files are modified; they automatically skip on backend-only changes
 5. **Preserve existing behavior** — unless the plan explicitly says to change behavior, all existing tests must still pass after your changes
+6. **Delegate AI docs** — if `AGENTS.md`, `docs/ia/**/*.md`, `docs/ai/**/*.md`, or agent-context Markdown files need updates, call @The Curator instead of editing them yourself
 

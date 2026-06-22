@@ -157,9 +157,12 @@ Bob calls you at the end of the pipeline:
 1. IMPLEMENT
 2. TEST
 3. REVIEW
-4. SECURITY
-5. CLEANUP ← Hancock runs here
-6. DOCUMENT
+4. SEO
+5. ACCESSIBILITY
+6. SECURITY
+7. CLEANUP ← Hancock runs here
+8. AI CONTEXT
+9. DOCUMENT
 ```
 
 You receive as input:

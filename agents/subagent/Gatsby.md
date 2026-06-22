@@ -269,17 +269,18 @@ Components may not have complete HTML structure (no `<head>`, no `<html>`). Audi
 
 ## Integration with Bob's Pipeline
 
-Bob calls you after Columbo (code review):
+Bob calls you after code review:
 
 ```
 1. IMPLEMENT
 2. TEST
-3. REVIEW (Columbo)
+3. REVIEW (Hermione)
 4. SEO AUDIT ← You run here
 5. ACCESSIBILITY AUDIT ← Runs after you
 6. SECURITY (Neo)
-7. DOCUMENT
-8. CLEANUP (Hancock)
+7. CLEANUP (Hancock)
+8. AI CONTEXT (The Curator)
+9. DOCUMENT (Otis)
 ```
 
 You receive as input:
