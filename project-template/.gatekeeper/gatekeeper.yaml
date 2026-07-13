@@ -1,0 +1,10 @@
+version: 1
+runtime:
+  global_agents_dir: C:/path/to/myAgents/agents
+  runs_dir: .gatekeeper/runs
+  plans_dir: plans
+models:
+  provider: openai
+  model: gpt-4.1
+agents:
+  overrides_dir: .gatekeeper/agents
