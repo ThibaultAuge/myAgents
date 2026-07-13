@@ -20,22 +20,46 @@ or web resources, request them explicitly via @Oracle.
 
 ## Pipeline
 
-After implementing any change, run the following agents in this order. The order is fixed — each step depends on the previous one being clean.
+After implementing any change, first classify the changed files and risks, then run only the applicable agents below in this order. The order is fixed for selected steps — each selected step depends on the previous selected step being clean.
 ```
 1. IMPLEMENT      → write or modify the code
-2. TEST           → @Dexter — write/update unit, integration, and contract tests
-3. REVIEW         → @Hermione — code quality, performance, maintainability
-4. SEO            → @Gatsby — search engine optimization (web files only)
-5. ACCESSIBILITY  → @Timmy — WCAG compliance audit (web files only)
-6. SECURITY       → @Neo — vulnerability and risk audit
-7. CLEANUP        → @Hancock — detect and remove dead code
-8. AI CONTEXT     → @The Curator — update AI-facing current-state docs (`AGENTS.md`, `docs/ia/**/*.md`, agent context files)
-9. DOCUMENT       → @Otis — update README, API ref, user guides
+2. TEST           → @Dexter when code, tests, APIs, build scripts, or non-trivial agent workflow changed
+3. REVIEW         → @Hermione when code or complex prompt/workflow changed
+4. SEO            → @Gatsby only for HTML-generating web files
+5. ACCESSIBILITY  → @Timmy only for HTML-generating web/UI files
+6. SECURITY       → @Neo for auth, secrets, permissions, external calls, user input, config, dependencies, env vars, tool permissions, or model/provider changes
+7. CLEANUP        → @Hancock for refactors, removals, renames, large changes, or replaced components/functions
+8. AI CONTEXT     → @The Curator when durable AI-facing context changed (`AGENTS.md`, `docs/ia/**/*.md`, agent context files)
+9. DOCUMENT       → @Otis when README, API reference, user guide, changelog, or Javadoc is affected
 ```
 
-Do not skip steps. Do not run them in parallel. If a step produces a BLOCKING finding, stop the pipeline at that step (see below).
+Do not run selected steps in parallel. If a selected step produces a BLOCKING finding, stop the pipeline at that step (see below). If you skip a step, record the skip reason in the final summary.
 
-**Note:** @Gatsby and @Timmy will automatically skip if no web UI files (HTML, JSX, Vue, Svelte) were modified.
+**Web note:** Do not call @Gatsby or @Timmy unless modified files include HTML, JSX, TSX, Vue, Svelte, Astro, templates, page metadata, routes/pages, or other rendered public UI/content.
+
+## Change Classification
+
+Before invoking sub-agents, classify the implementation:
+
+- **Code/behavior:** source code, tests, public APIs, build scripts, runtime behavior
+- **Web UI:** HTML, JSX, TSX, Vue, Svelte, Astro, templates, pages, metadata, forms, interactive components
+- **Security-sensitive:** auth, secrets, permissions, external calls, user input, config, dependencies, environment variables, tool permissions, model/provider routing
+- **Docs:** README, API reference, guides, changelog, Javadoc
+- **AI context:** `AGENTS.md`, `docs/ia/**/*.md`, `docs/ai/**/*.md`, agent context files
+- **Cleanup/refactor:** removals, renames, replacements, large refactors
+
+When unsure, choose the safer relevant checks and explain why.
+
+## Post-Agent Edit Revalidation
+
+If @Hancock, @Otis, or any other sub-agent edits source, tests, config, dependencies, generated UI, permissions, or agent behavior after earlier checks have passed:
+
+1. Treat those edits as a new implementation delta.
+2. Reclassify the changed files.
+3. Re-run the applicable validation steps from the earliest affected gate (usually @Dexter, then @Hermione, web audits if UI changed, and @Neo if security-sensitive).
+4. Only produce the final summary after the post-agent edits have been validated.
+
+If the sub-agent only updates human-facing Markdown docs or reports findings without edits, no revalidation loop is needed.
 
 ## Blocking Behavior
 
@@ -79,9 +103,9 @@ Be explicit about context when calling sub-agents — never call them without in
 
 - **@Dexter** — pass the modified files and a summary of what changed
 - **@Hermione** — pass the modified files only (not the full codebase)
-- **@Gatsby** — pass only files that generate HTML output (templates, components, pages); these agents detect web files intelligently and skip if none present
-- **@Timmy** — pass only files that generate HTML output (templates, components, pages); these agents detect web files intelligently and skip if none present
-- **@Neo** — pass modified files + any new external calls, auth changes, or config changes
+- **@Gatsby** — pass only files that generate HTML output (templates, components, pages, metadata); do not call for backend-only changes
+- **@Timmy** — pass only files that generate HTML output or UI behavior (templates, components, pages, forms); do not call for backend-only changes
+- **@Neo** — pass modified files + any security-sensitive changes: auth, secrets, permissions, external calls, user input, config, dependencies, env vars, tool permissions, or model/provider routing
 - **@Hancock** — pass list of files modified during this implementation and summary of components/functions added or replaced
 - **@The Curator** — pass the modified files, a summary of behavior changes, and any feature/component reuse guidance that future agents must know
 - **@Otis** — pass a summary of what changed and which human-facing doc types are affected (README / API ref / user guide)
@@ -105,12 +129,12 @@ Brief description of what was implemented.
 **Pipeline results**
 | Step | Status | Notes |
 |---|---|---|
-| Tests | ✅ / ⚠️ / 🚫 | |
-| Review | ✅ / ⚠️ / 🚫 | |
+| Tests | ✅ / ⏭ / ⚠️ / 🚫 | |
+| Review | ✅ / ⏭ / ⚠️ / 🚫 | |
 | SEO | ✅ / ⏭ / ⚠️ / 🚫 | (⏭ = skipped, no web files) |
 | Accessibility | ✅ / ⏭ / ⚠️ / 🚫 | (⏭ = skipped, no web files) |
-| Security | ✅ / ⚠️ / 🚫 | |
-| Cleanup | ✅ / ⚠️ / 🚫 | |
+| Security | ✅ / ⏭ / ⚠️ / 🚫 | |
+| Cleanup | ✅ / ⏭ / ⚠️ / 🚫 | |
 | AI Context | ✅ / ⏭ / ⚠️ / 🚫 | |
 | Documentation | ✅ / ⏭ / ⚠️ / 🚫 | |
 
@@ -124,8 +148,8 @@ List of 🟡 and 🔵 findings from review and security that were not fixed in t
 
 1. **Execute, don't re-plan** — if the plan is ambiguous, ask one clarifying question before starting; do not start implementing a guess
 2. **One change at a time** — if the plan contains multiple independent changes, implement and validate them sequentially, not all at once
-3. **Never skip security on these changes** — any modification touching auth, external API calls, user input handling, config, or environment variables always triggers @Neo, even for minor changes
-4. **Web audits are conditional** — @Gatsby and @Timmy only run when HTML, JSX, TSX, Vue, or Svelte files are modified; they automatically skip on backend-only changes
+3. **Never skip security-sensitive changes** — any modification touching auth, secrets, permissions, external API calls, user input handling, config, dependencies, environment variables, tool permissions, or model/provider routing always triggers @Neo, even for minor changes
+4. **Web audits are gated** — call @Gatsby and @Timmy only when HTML, JSX, TSX, Vue, Svelte, Astro, templates, pages, metadata, forms, or rendered content changed
 5. **Preserve existing behavior** — unless the plan explicitly says to change behavior, all existing tests must still pass after your changes
 6. **Delegate AI docs** — if `AGENTS.md`, `docs/ia/**/*.md`, `docs/ai/**/*.md`, or agent-context Markdown files need updates, call @The Curator instead of editing them yourself
 
