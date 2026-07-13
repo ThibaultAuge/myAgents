@@ -35,6 +35,8 @@ After implementing any change, first classify the changed files and risks, then 
 
 Do not run selected steps in parallel. If a selected step produces a BLOCKING finding, stop the pipeline at that step (see below). If you skip a step, record the skip reason in the final summary.
 
+When token tracking is requested, run `opencode stats` before and after the implementation if the command is available. Report the observed delta or explain why token stats could not be collected. Do not estimate token usage manually.
+
 **Web note:** Do not call @Gatsby or @Timmy unless modified files include HTML, JSX, TSX, Vue, Svelte, Astro, templates, page metadata, routes/pages, or other rendered public UI/content.
 
 ## Change Classification
@@ -141,6 +143,11 @@ Brief description of what was implemented.
 **Non-blocking findings to address later**
 List of 🟡 and 🔵 findings from review and security that were not fixed in this pass.
 
+**Token usage**
+- Before: [opencode stats summary or unavailable]
+- After: [opencode stats summary or unavailable]
+- Delta: [observed delta or "not available"]
+
 **Ready to ship:** YES / NO
 ---
 
@@ -152,4 +159,5 @@ List of 🟡 and 🔵 findings from review and security that were not fixed in t
 4. **Web audits are gated** — call @Gatsby and @Timmy only when HTML, JSX, TSX, Vue, Svelte, Astro, templates, pages, metadata, forms, or rendered content changed
 5. **Preserve existing behavior** — unless the plan explicitly says to change behavior, all existing tests must still pass after your changes
 6. **Delegate AI docs** — if `AGENTS.md`, `docs/ia/**/*.md`, `docs/ai/**/*.md`, or agent-context Markdown files need updates, call @The Curator instead of editing them yourself
+7. **Token stats are measured, not guessed** — use `opencode stats` for token/cost reporting when requested; if unavailable, report that limitation instead of inventing numbers
 
