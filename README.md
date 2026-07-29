@@ -4,7 +4,9 @@ This repository contains a small set of OpenCode agent definitions. The OpenCode
 
 The current agent set uses a cost-aware workflow. Bob the Builder runs only the validation gates that apply to the files changed, while selected audit agents use the lower-cost `opencode/big-pickle` model.
 
-## Agent Relationships
+![Overview](docs/overview.png)
+
+## Agent relationships
 
 ```mermaid
 flowchart TD
@@ -42,7 +44,7 @@ flowchart TD
 ```
 *Figure: Primary agents and the subagents they are expected to call during planning, implementation, validation, or supporting research.*
 
-## Agents
+## Agents list
 
 | Agent | Mode | File | Purpose |
 |---|---|---|---|
