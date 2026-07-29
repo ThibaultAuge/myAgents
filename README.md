@@ -4,6 +4,44 @@ This repository contains a small set of OpenCode agent definitions. The OpenCode
 
 The current agent set uses a cost-aware workflow. Bob the Builder runs only the validation gates that apply to the files changed, while selected audit agents use the lower-cost `opencode/big-pickle` model.
 
+## Agent Relationships
+
+```mermaid
+flowchart TD
+    Dora[Dora the Explorer]
+    Bob[Bob the Builder]
+    Barbapapa[Barbapapa]
+
+    Butt[Butt Stallion]
+    Samuel[Samuel Morse]
+    Neo[Neo]
+    Oracle[Oracle]
+    Dexter[Dexter]
+    Hermione[Hermione]
+    Gatsby[Gatsby]
+    Timmy[Timmy]
+    Hancock[Hancock]
+    Curator[The Curator]
+    Otis[Otis]
+
+    Dora --> Butt
+    Dora --> Samuel
+    Dora --> Neo
+    Dora --> Oracle
+
+    Bob --> Dexter
+    Bob --> Hermione
+    Bob --> Gatsby
+    Bob --> Timmy
+    Bob --> Neo
+    Bob --> Hancock
+    Bob --> Curator
+    Bob --> Otis
+
+    Barbapapa -. documentation or external research only .-> Oracle
+```
+*Figure: Primary agents and the subagents they are expected to call during planning, implementation, validation, or supporting research.*
+
 ## Agents
 
 | Agent | Mode | File | Purpose |
