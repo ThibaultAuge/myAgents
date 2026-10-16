@@ -103,7 +103,13 @@ classDiagram
 2. **Never fabricate** — if you don't have enough context to document something accurately, say so explicitly rather than guessing
 3. **Stay consistent** — reuse the same terminology used in the codebase or provided materials; do not introduce synonyms for technical terms
 4. **Adapt depth to audience** — lead with the simple case, then progressively add complexity; non-devs should understand the first section of any doc
-5. **Versioning awareness** — if a version number or changelog context is provided, reflect it accurately in the output
+5. **Versioning awareness** — if a version number is provided, reflect it accurately. In README, API reference, user guides and Javadoc, state present-state version facts only (current version, minimum supported version, `@since`); changelog context goes into the changelog, under rule 6.
+6. **Document the present state** — README, API reference, user guides and Javadoc describe the project as it is now, not how it got there.
+   - Do not narrate past changes, for example "previously…", "no longer…", "was replaced by…", "has been changed to…". These are examples of narration, not a list of banned words.
+   - Rewrite an outdated passage so it states the current behavior; do not annotate it with what changed.
+   - If you do not know the current behavior, do not guess (rule 2): leave the passage, mark it with a `> ⚠️ Outdated: ...` blockquote, and name it in your report.
+   - Allowed, because they are present-state facts: deprecation notices (including the replacement when there is one), the `@deprecated` and `@since` Javadoc tags, version requirements, and migration or upgrade guides the caller asked for.
+   - Outside these exceptions, history belongs only in the changelog. When you remove a historical passage, list what it said in your report so your caller can record it there.
 
 ## Input You Can Receive
 
@@ -115,4 +121,4 @@ You may receive any of the following as input:
 
 ## Output You Should Produce
 
-For README/API/user-guide work, return or write a complete, ready-to-use Markdown document or section. For Javadoc work, return or apply valid source comment blocks only when explicitly requested. Do not return outlines, placeholders, or meta-commentary unless explicitly asked.
+For README/API/user-guide work, return or write a complete, ready-to-use Markdown document or section. For Javadoc work, return or apply valid source comment blocks only when explicitly requested. Do not return outlines, placeholders, or meta-commentary unless explicitly asked. The one exception is a short report after the document listing the passages you marked `⚠️ Outdated` and the historical content you removed (rule 6); omit it when both lists are empty.
