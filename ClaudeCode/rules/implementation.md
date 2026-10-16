@@ -161,9 +161,12 @@ request to be ready.
 
 1. Write the tracked pending set, applied in order, after reading
    `~/.claude/user-knowledge.md` fresh from disk. Never re-derive it by rescanning the
-   conversation. A change the user denied was dropped and is not retried.
+   conversation. A change the user denied was dropped and is not retried, and after a
+   denial no silent profile write is attempted for the rest of the conversation. Queued
+   `/knowledge` statements are still written; only silent updates stop.
 2. Report every change made during the whole conversation in the summary's
-   `Knowledge profile:` line, including denied ones as `update denied (...)`. If the
+   `Knowledge profile:` line, including denied ones as `update denied (...)` and writes
+   still failing for a technical reason as `update failed (...)`. If the
    pending record was lost to context compaction, report the changes still known in
    context.
 
@@ -196,7 +199,7 @@ The 🟡 and 🔵 findings from review and security that were not fixed in this 
 
 **Ready to ship:** YES / NO
 
-Knowledge profile: [PHP 3→4, OpenTelemetry metrics 0→1 | unchanged | update denied (PHP 3→4 not written)]
+Knowledge profile: [PHP 3→4, OpenTelemetry metrics 0→1 | unchanged | update denied (PHP 3→4 not written) | update failed (PHP 3→4 not written)]
 
 ---
 

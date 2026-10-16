@@ -38,6 +38,18 @@ change nothing. Reply with the accepted forms and the scale: 0 unknown · 1 noti
 - If the file is missing when a write is needed, create it from the fenced template in
   `~/.claude/rules/user-knowledge.md`, exactly as written there. Then apply the change.
 - Keep every other row exactly as it is.
+- A set or forget clears every tracked pending signal for that domain, so an older pending
+  signal can never overwrite the user's explicit correction. Your write carries only this
+  set or forget and never flushes pending silent signals.
+- **In Plan mode, do not write.** Displaying the profile with no argument still works, and
+  lists any queued set or forget below the table. For a set or forget, change nothing on
+  disk: tell the user the change will be applied once Plan mode is exited and is lost if the
+  context is cleared first, and add it to the tracked pending set as an explicit statement.
+  A queued set or forget survives a plan rejection and is applied if Plan mode is later
+  exited in the same conversation.
+- A set or forget is exempt from the stop on profile writes that follows a denied silent
+  update, so it still writes. If the user denies the permission prompt for this write, only
+  this write is dropped; the silent updates are not affected.
 - Record only a technical domain. If the domain the user gives contains personal
   information, such as an employer, a person's name, or a client, ask them to rephrase it as
   a technical skill.
