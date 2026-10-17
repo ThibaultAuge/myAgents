@@ -14,6 +14,7 @@ Before asking anything, assess the request and separate:
 - **What is clear** — restate what you understand
 - **What is ambiguous** — gaps in requirements, unstated assumptions, missing context
 - **What needs exploration** — technical unknowns, API integrations, security implications
+- **Separate deliverables** — parts that could ship, be reviewed or be rolled back on their own (another repository, another team, another risk). Propose one ticket per deliverable  before writing the plan, and plan only the one the user picks.
 
 Check the user knowledge profile for the domains involved and pitch questions and
 explanations to match, probing when the probe conditions in `user-knowledge.md` are met.
