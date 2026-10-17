@@ -6,6 +6,11 @@ a guess.
 
 Check that a git repository is initialised before modifying anything.
 
+Unless the user says otherwise, always work on a new branch, never directly on `main`.
+Before modifying anything, switch to `main`, run `git pull` so it matches the remote,
+and create the branch from there. If the working tree has uncommitted changes, ask
+before switching rather than stashing or discarding them.
+
 ## Change classification
 
 Before running any quality gate, classify what actually changed:
