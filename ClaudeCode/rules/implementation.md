@@ -24,8 +24,8 @@ Before running any quality gate, classify what actually changed:
   `allowed-tools` — model/provider routing
 - **Dependencies/config** — manifests, lockfiles, CI config, build and runtime config
 - **Docs** — README, API reference, guides, changelog, Javadoc
-- **AI context** — `AGENTS.md`, `CLAUDE.md`, `docs/ia/**/*.md`, `docs/ai/**/*.md`,
-  `.claude/rules/**`, `.claude/agents/**`, `.claude/skills/**`
+- **AI context** — `AGENTS.md`, `CLAUDE.md`, `docs/ai/**/*.md`, `.claude/rules/**`,
+  `.claude/context/**`, `.claude/agents/**`, `.claude/skills/**`
 - **Cleanup/refactor** — removals, renames, replacements, large refactors
 
 When unsure, choose the safer relevant checks and explain why.
@@ -71,23 +71,8 @@ rendered public UI or content. Backend-only changes never trigger them.
 
 ## What to pass each agent
 
-Never call an agent without input.
-
-- **`dexter`** — the modified files and a summary of what changed
-- **`hermione`** — the modified files only, not the full codebase
-- **`gatsby`** — only files that generate HTML output (templates, components, pages,
-  metadata)
-- **`timmy`** — only files that generate HTML output or UI behavior (templates,
-  components, pages, forms)
-- **`neo`** — the modified files plus the specific security-sensitive changes: auth,
-  secrets, permissions, external calls, user input, config, dependencies, env vars,
-  tool permissions, model/provider routing
-- **`hancock`** — the list of files modified during this implementation and a summary
-  of components or functions added or replaced
-- **`curator`** — the modified files, a summary of behavior changes, and any reuse
-  guidance future agents must know
-- **`otis`** — a summary of what changed and which human-facing doc types are
-  affected (README / API reference / user guide)
+Never call an agent without input. Before invoking a quality-gate agent, read
+`~/.claude/context/pipeline-reports.md` for the exact input each agent expects.
 
 ## Post-agent edit revalidation
 
@@ -111,15 +96,8 @@ If `hermione`, `gatsby`, or `timmy` returns a 🔴 BLOCKING finding, or `neo` re
 1. **Stop the pipeline immediately** — do not proceed to the next gate.
 2. **Fix the issue** if it is clearly scoped and contained.
 3. **Re-run the failed gate** to confirm the fix resolves the finding.
-4. **If the same finding persists after 2 fix attempts**, stop and report:
-
-```
-🚫 PIPELINE BLOCKED
-Step: [step name]
-Finding: [exact finding from the agent]
-Attempts: 2
-Status: Unable to resolve — human intervention required.
-```
+4. **If the same finding persists after 2 fix attempts**, stop and report it with the
+   `PIPELINE BLOCKED` block; read `~/.claude/context/pipeline-reports.md` for its format.
 
 Never loop more than twice on the same problem.
 
@@ -131,21 +109,17 @@ Track your own progress. Stop immediately and report if:
 - An agent keeps returning the same finding after your fixes
 - You are unsure whether your last change made things better or worse
 
-```
-⚠️ LOOP DETECTED
-I have attempted to resolve [issue] [N] times without progress.
-Last state: [what was tried]
-Recommended next step: [honest assessment of what a human should do]
-```
+Report the stop with the `LOOP DETECTED` block; read `~/.claude/context/pipeline-reports.md`
+for its format.
 
 Stopping cleanly is better than shipping broken code.
 
 ## Documentation ownership
 
-`curator` is the sole owner of AI-facing documentation: `AGENTS.md`, `CLAUDE.md`,
-`docs/ia/**/*.md`, `docs/ai/**/*.md`, `.claude/rules/**`, `.claude/agents/**`,
-`.claude/skills/**`, and agent-context Markdown. Do not edit those directly during
-implementation.
+`curator` is the sole owner of AI-facing documentation: the AI context paths listed under
+change classification above, and agent-context Markdown. Do not edit those directly during
+implementation. How that content is split between the root file, `docs/ai/`, and `docs/`
+is defined in `~/.claude/agents/curator.md` (Context tiers).
 
 `otis` owns human-facing documentation only: README files, API references, user
 guides, tutorials, changelogs, and Javadoc. Never ask `otis` to update AI context docs.
@@ -164,49 +138,22 @@ the per-question loop in `user-knowledge.md`. This step only closes it out, befo
 final summary, silently and without asking for confirmation. It does not wait for the pull
 request to be ready.
 
-1. Write the tracked pending set, applied in order, after reading
-   `~/.claude/user-knowledge.md` fresh from disk. Never re-derive it by rescanning the
-   conversation. A change the user denied was dropped and is not retried, and after a
-   denial no silent profile write is attempted for the rest of the conversation. Queued
-   `/knowledge` statements are still written; only silent updates stop.
+1. Write the tracked pending set as the silent update timing section of
+   `user-knowledge.md` defines: its denied-write, failed-write, and "Before the
+   implementation final summary" bullets.
 2. Report every change made during the whole conversation in the summary's
-   `Knowledge profile:` line, including denied ones as `update denied (...)` and writes
-   still failing for a technical reason as `update failed (...)`. If the
-   pending record was lost to context compaction, report the changes still known in
-   context.
+   `Knowledge profile:` line, in the format of the Transparency section of
+   `user-knowledge.md`.
 
-A `PIPELINE BLOCKED` or `LOOP DETECTED` stop still runs this step, and the same one-line
-report goes after that block.
+After a `PIPELINE BLOCKED` or `LOOP DETECTED` stop, that one-line report goes after the
+block.
 
 ## Final summary
 
----
-### Implementation Summary
-
-**Changes made**
-Brief description of what was implemented.
-
-**Pipeline results**
-
-| Step | Status | Notes |
-|---|---|---|
-| Tests | ✅ / ⏭ / ⚠️ / 🚫 | |
-| Review | ✅ / ⏭ / ⚠️ / 🚫 | |
-| SEO | ✅ / ⏭ / ⚠️ / 🚫 | (⏭ = skipped, no web files) |
-| Accessibility | ✅ / ⏭ / ⚠️ / 🚫 | (⏭ = skipped, no web files) |
-| Security | ✅ / ⏭ / ⚠️ / 🚫 | |
-| Cleanup | ✅ / ⏭ / ⚠️ / 🚫 | |
-| AI Context | ✅ / ⏭ / ⚠️ / 🚫 | |
-| Documentation | ✅ / ⏭ / ⚠️ / 🚫 | |
-
-**Non-blocking findings to address later**
-The 🟡 and 🔵 findings from review and security that were not fixed in this pass.
-
-**Ready to ship:** YES / NO
-
-Knowledge profile: [PHP 3→4, OpenTelemetry metrics 0→1 | unchanged | update denied (PHP 3→4 not written) | update failed (PHP 3→4 not written)]
-
----
+Before writing the final summary, read `~/.claude/context/pipeline-reports.md` and fill in
+its final summary template: changes made, a pipeline results row per gate (with the reason
+for every skipped gate), non-blocking findings, ready to ship, and the
+`Knowledge profile:` line.
 
 ## After the summary
 

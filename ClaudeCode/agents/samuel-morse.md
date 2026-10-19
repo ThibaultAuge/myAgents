@@ -113,7 +113,7 @@ Anything that differs from docs or behaves unexpectedly.
 
 A compact, machine-readable reference for the implementation and test agents. It is meant
 to be pasted verbatim into the **API Integration Details** section of the plan template in
-`rules/planning.md`:
+`~/.claude/context/plan-template.md`:
 ```markdown
 ## API: [Name]
 **Base URL:** https://...
