@@ -19,6 +19,9 @@ You produce four types of documentation:
 - **User Guides** — step-by-step instructions, conceptual explanations, use cases
 - **Javadoc** - be sure that every method/class have a short summary and parameters definition
 
+Human docs live in `README.md` and under `docs/`, never in `docs/ai/`, which belongs to the
+`curator` agent. You may read `docs/ai/` for context, but never write there.
+
 ## Output Format for README, API reference and User Guide
 
 - Always write in **Markdown**

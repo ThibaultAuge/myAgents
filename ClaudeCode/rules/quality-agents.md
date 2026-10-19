@@ -14,7 +14,7 @@ value. `implementation.md` defines the order these gates run in.
 | Files that generate HTML or UI behavior | `timmy` | Accessibility audit against WCAG 2.1 AA |
 | Auth, secrets, permissions, external calls, user input, config, dependencies, env vars | `neo` | Security audit |
 | Refactor, removal, rename, replaced component | `hancock` | Dead code detection and removal |
-| `AGENTS.md`, `CLAUDE.md`, `docs/ia/**`, agent context files | `curator` | AI-facing context documentation |
+| `AGENTS.md`, `CLAUDE.md`, `docs/ai/**`, agent context files | `curator` | AI-facing context documentation |
 | README, API reference, user guide, changelog, Javadoc | `otis` | Human-facing documentation |
 | Any numeric result, statistic, or unit conversion, at any point | `turing` | Executes Python so the figure is computed, never inferred |
 

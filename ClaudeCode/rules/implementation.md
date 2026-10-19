@@ -19,8 +19,8 @@ Before running any quality gate, classify what actually changed:
   `allowed-tools` — model/provider routing
 - **Dependencies/config** — manifests, lockfiles, CI config, build and runtime config
 - **Docs** — README, API reference, guides, changelog, Javadoc
-- **AI context** — `AGENTS.md`, `CLAUDE.md`, `docs/ia/**/*.md`, `docs/ai/**/*.md`,
-  `.claude/rules/**`, `.claude/agents/**`, `.claude/skills/**`
+- **AI context** — `AGENTS.md`, `CLAUDE.md`, `docs/ai/**/*.md`, `.claude/rules/**`,
+  `.claude/agents/**`, `.claude/skills/**`
 - **Cleanup/refactor** — removals, renames, replacements, large refactors
 
 When unsure, choose the safer relevant checks and explain why.
@@ -138,9 +138,10 @@ Stopping cleanly is better than shipping broken code.
 ## Documentation ownership
 
 `curator` is the sole owner of AI-facing documentation: `AGENTS.md`, `CLAUDE.md`,
-`docs/ia/**/*.md`, `docs/ai/**/*.md`, `.claude/rules/**`, `.claude/agents/**`,
-`.claude/skills/**`, and agent-context Markdown. Do not edit those directly during
-implementation.
+`docs/ai/**/*.md`, `.claude/rules/**`, `.claude/agents/**`, `.claude/skills/**`, and
+agent-context Markdown. Do not edit those directly during implementation. The root
+`AGENTS.md`/`CLAUDE.md` stays a minimal always-loaded index; detail goes to on-demand
+`docs/ai/` files, and human docs go to `docs/`.
 
 `otis` owns human-facing documentation only: README files, API references, user
 guides, tutorials, changelogs, and Javadoc. Never ask `otis` to update AI context docs.
