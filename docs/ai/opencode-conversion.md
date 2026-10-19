@@ -5,16 +5,9 @@ description: Use when porting, comparing, or referencing an OpenCode agent or or
 # OpenCode to Claude Code conversion
 
 ## Current State
-`OpenCode/` is the original, still-functional OpenCode agent set, kept as frozen reference.
-- `OpenCode/agents/primary/` holds the primary-mode orchestrators: `Argus.md`, `Barbapapa.md`, `Bob the Builder.md`, `Dora the Explorer.md`.
-- `OpenCode/agents/subagent/` holds the twelve callable OpenCode subagents.
+The status of `OpenCode/` is stated in the Scope section of `AGENTS.md`. Its `primary/` and `subagent/` layout is described in [README.md, Legacy: OpenCode](../../README.md#legacy-opencode), and the mapping of the OpenCode orchestrators to Claude Code rules in [README.md, Rules](../../README.md#rules).
 
-Claude Code has no `primary` mode: every file in `agents/` is a subagent invoked from the main session. Orchestrators therefore became rules, not agents:
-- `Bob the Builder` → `ClaudeCode/rules/implementation.md`
-- `Dora the Explorer` → `ClaudeCode/rules/planning.md`
-- `Argus` → dropped in favour of the built-in `/code-review` and `/security-review` skills.
-
-`planning.md`, `implementation.md`, and `quality-agents.md` together carry the orchestration logic Bob, Dora, and Argus used to hold.
+Claude Code has no `primary` mode: every file in `agents/` is a subagent invoked from the main session, so orchestrators became rules, not agents.
 
 ## Relevant Files
 - `OpenCode/agents/primary/`, `OpenCode/agents/subagent/`

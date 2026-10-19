@@ -11,7 +11,7 @@ The workflow is cost-aware. Each change runs only the validation gates that fit 
 Copy the configuration from the repository root into your Claude Code home folder, `~/.claude/`. On Windows, use PowerShell:
 
 ```powershell
-foreach ($d in 'agents', 'rules', 'skills') {
+foreach ($d in 'agents', 'rules', 'skills', 'context') {
     New-Item -ItemType Directory -Force "$HOME\.claude\$d" | Out-Null
     Copy-Item -Recurse -Force "ClaudeCode\$d\*" "$HOME\.claude\$d"
 }
@@ -26,7 +26,7 @@ if (-not (Test-Path "$HOME\.claude\user-knowledge.md")) {
 On macOS or Linux, use the equivalent commands:
 
 ```bash
-for d in agents rules skills; do
+for d in agents rules skills context; do
   mkdir -p ~/.claude/$d && cp -R ClaudeCode/$d/. ~/.claude/$d/
 done
 cp ClaudeCode/CLAUDE.md ~/.claude/CLAUDE.md
@@ -39,7 +39,7 @@ Keep the folder structure when you copy. Skills must stay in one folder per skil
 
 > ⚠️ `ClaudeCode/CLAUDE.md` is the full global instruction file. Copying it replaces an existing `~/.claude/CLAUDE.md`. Merge your own instructions into it first.
 
-Restart Claude Code after copying. Agents, rules, and skills load at startup.
+Restart Claude Code after copying. Agents, rules, and skills load at startup. Files in `context/` are read on demand, so they need no restart.
 
 ### Recommended permission rule
 
@@ -57,7 +57,7 @@ The rule in `ClaudeCode/rules/user-knowledge.md` points to this section for the 
 
 ## Claude Code configuration
 
-The configuration has four parts. `CLAUDE.md` sets the top-level workflow and imports the user knowledge profile. The rules in `rules/` hold the planning and implementation logic. The subagents in `agents/` do specialized work when the main session calls them. The skills in `skills/` are commands you type in a session.
+The configuration has five parts. `CLAUDE.md` sets the top-level workflow and imports the user knowledge profile. The rules in `rules/` hold the planning and implementation logic. The subagents in `agents/` do specialized work when the main session calls them. The skills in `skills/` are commands you type in a session. The reference files in `context/` hold templates and report formats that the rules read on demand.
 
 ```mermaid
 flowchart TD
@@ -116,11 +116,21 @@ Rules are Markdown files that the main session follows. They do not run as separ
 | `rules/quality-agents.md` | Routes changed files to subagents and defines the shared severity vocabulary. |
 | `rules/user-knowledge.md` | Rules for the user knowledge profile. |
 
+Detailed templates and report formats live in `context/`. Each rule names the file to read at the step that needs it.
+
 The earlier OpenCode orchestrators map to these rules and to built-in features:
 
 - `Bob the Builder` → `rules/implementation.md`
 - `Dora the Explorer` → `rules/planning.md`
 - `Argus` → no Claude Code agent. Use the built-in `/code-review` and `/security-review` skills.
+
+### Documentation tiers
+
+Every project that uses this configuration splits its documentation into three tiers.
+
+- **Root `AGENTS.md` or `CLAUDE.md`** loads on every request. It stays a minimal index that points to the topic files.
+- **`docs/ai/`** holds AI notes, one topic per file. Each file starts with a `description: Use when …` line, is listed in the root index, and is read on demand. The `curator` agent maintains it.
+- **`README.md` and `docs/`** hold human docs. The `otis` agent maintains them.
 
 ### Agents
 
@@ -207,4 +217,4 @@ The full rules, including the update bounds, are in `ClaudeCode/rules/user-knowl
 
 `OpenCode/agents/` holds the original OpenCode agent set. It is split into `primary/` (`Argus`, `Barbapapa`, `Bob the Builder`, `Dora the Explorer`) and `subagent/` (twelve agents). It is a frozen reference. It is not maintained, and the Claude Code configuration does not depend on it.
 
-Its filenames contain spaces by design, because OpenCode prompts refer to agents by names such as `@Bob the Builder`. For the frontmatter conversion from OpenCode to Claude Code, see the table in `AGENTS.md`.
+Its filenames contain spaces by design, because OpenCode prompts refer to agents by names such as `@Bob the Builder`. For the frontmatter conversion from OpenCode to Claude Code, see the table in [`docs/ai/opencode-conversion.md`](docs/ai/opencode-conversion.md).
