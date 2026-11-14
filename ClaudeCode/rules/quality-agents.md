@@ -1,8 +1,12 @@
 # Quality agent routing
 
+This routing is applied only by the main session. A subagent does only the task in its
+brief.
+
 After implementation, inspect the actual changes and route them to the agents whose
 expertise is genuinely relevant. Do not invoke agents mechanically when they add no
-value. `implementation.md` defines the order these gates run in.
+value. The waves in `implementation.md` are the single source for when and in what
+order these gates run, and which run in parallel.
 
 ## Signal to agent
 
@@ -20,8 +24,8 @@ value. `implementation.md` defines the order these gates run in.
 
 `dexter` writes tests; `hermione` reviews code. They are not interchangeable.
 
-Run `gatsby` before `timmy`, and only when rendered content actually changed — a
-backend-only diff triggers neither.
+Call `gatsby` and `timmy` only when rendered content actually changed — a backend-only
+diff triggers neither.
 
 ## Shared reporting vocabulary
 

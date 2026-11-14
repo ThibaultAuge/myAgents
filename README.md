@@ -2,7 +2,7 @@
 
 This repository is a **Claude Code configuration**: subagents, rule files, and skills that shape how Claude Code plans, implements, and checks work. The active set lives under `ClaudeCode/`. You copy it to `~/.claude/` once, and Claude Code loads it in every session.
 
-The workflow is cost-aware. Each change runs only the validation gates that fit the files it touched. The checklist-style audit agents and the documentation and computation agents use the `haiku` model.
+The workflow is cost-aware. Each change runs only the validation gates that fit the files it touched, and the read-only audits run in parallel. The checklist-style audit agents and the documentation and computation agents use the `haiku` model.
 
 ![Overview](docs/overview.png)
 
@@ -70,6 +70,8 @@ flowchart TD
     Samuel[samuel-morse]
     Oracle[oracle]
     Barbapapa[barbapapa]
+    Explore[Explore]
+    Lots[general-purpose lots]
     Neo[neo]
     Dexter[dexter]
     Hermione[hermione]
@@ -83,12 +85,14 @@ flowchart TD
     Session --> Planning
     Session --> Implementation
     Implementation --> Quality
+    Implementation --> Lots
 
     Planning --> Butt
     Planning --> Samuel
     Planning --> Neo
     Planning --> Oracle
     Planning --> Barbapapa
+    Planning --> Explore
 
     Quality --> Dexter
     Quality --> Hermione
@@ -111,8 +115,8 @@ Rules are Markdown files that the main session follows. They do not run as separ
 | File | Role |
 |---|---|
 | `CLAUDE.md` | Top-level workflow. Imports `~/.claude/user-knowledge.md`. |
-| `rules/planning.md` | Plan mode. Clarifies requirements, consults specialists, writes the plan to `plans/`, and stops at human approval. |
-| `rules/implementation.md` | Executes an approved plan. Classifies changes, runs the quality gates in a fixed order, and writes the final summary. |
+| `rules/planning.md` | Plan mode. Clarifies requirements, runs independent discovery in parallel with the questions, consults specialists, writes the plan to `plans/` with a Work Breakdown, and stops at human approval. |
+| `rules/implementation.md` | Executes an approved plan. Delegates the lots the plan marks delegable, classifies changes, runs the quality gates in three waves, and writes the final summary. |
 | `rules/quality-agents.md` | Routes changed files to subagents and defines the shared severity vocabulary. |
 | `rules/user-knowledge.md` | Rules for the user knowledge profile. |
 
@@ -154,6 +158,8 @@ Subagents run in their own context and return a report to the main session. A su
 
 `inherit` means the agent uses the model of the main session. `haiku` selects the smaller, cheaper model.
 
+The built-in `Explore` and `general-purpose` agents are not in `agents/`. Planning sends codebase discovery to `Explore`. An approved plan can delegate independent lots to `general-purpose`, and each lot edits only its own files.
+
 ### Skills
 
 A skill loads instructions into the current session and runs inline, rather than spawning a separate subagent. This keeps the session's own memory available. Use a skill for tasks that depend on what happened in the current conversation, such as questions answered or problems solved.
@@ -174,34 +180,43 @@ A skill loads instructions into the current session and runs inline, rather than
 
 ### The conditional pipeline
 
-`rules/implementation.md` classifies each change before it calls any agent. It runs the gates that apply, in this order: tests, review, SEO, accessibility, security, cleanup, AI context, and documentation. It skips the others and records the reason in the final summary.
+`rules/implementation.md` works in two stages. The first stage applies the plan's Work Breakdown. Every new plan has one. A plan that reads "Single lot — main session" runs sequentially, and so does a plan written before the Work Breakdown existed. Otherwise the main session implements the contract first. It commits the contract only when a lot runs in its own worktree, because lots in the same checkout see uncommitted files. Then it launches every delegable lot in one message, as a `general-purpose` subagent. The main session implements the other lots itself. When they finish, it reads each lot diff, checks it against the contract, and runs the full suite.
+
+The second stage runs the quality gates once, on the integrated result. Each gate keeps its own trigger condition, and the gates run in three waves. A wave starts only when the previous one came back clean:
+
+- **Wave 1:** `dexter` writes the tests. The main session runs the suite, because `dexter` cannot run commands.
+- **Wave 2:** `hermione`, `gatsby`, `timmy`, and `neo` run in parallel. They read and report, and they do not edit. The main session waits for every report, then fixes all blocking findings.
+- **Wave 3:** `hancock`, `curator`, and `otis` edit files, one at a time, in that order. `hancock` asks for confirmation before it deletes anything.
+
+The main session records the reason for every skipped gate in the final summary. The diagram shows the waves for one change.
 
 ```mermaid
 flowchart TD
-    A[Implement change] --> B[Classify files and risks]
-    B --> C{Code or workflow changed?}
-    C -- Yes --> D[dexter tests]
-    C -- No --> E[Skip tests]
-    D --> F{Review needed?}
-    E --> F
-    F -- Yes --> G[hermione review]
-    F -- No --> H[Skip review]
-    G --> I{HTML-generating UI changed?}
-    H --> I
-    I -- Yes --> J[gatsby SEO]
-    J --> K[timmy accessibility]
-    I -- No --> L[Skip web audits]
-    K --> M{Security-sensitive change?}
-    L --> M
-    M -- Yes --> N[neo security]
-    M -- No --> O[Skip security]
-    N --> P[Cleanup, AI context, and docs if affected]
-    O --> P
-    P --> Q[Final summary]
+    A[Implement change] --> B[Classify changed files]
+    B --> D[dexter writes tests]
+    D --> S[Main session runs suite]
+    S --> R[hermione review]
+    S --> G[gatsby SEO]
+    S --> T[timmy accessibility]
+    S --> N[neo security]
+    R --> J{All Wave 2 reports in}
+    G --> J
+    T --> J
+    N --> J
+    J -- Blocking finding --> U{Unfixable, incompatible, or repeated after 2 attempts}
+    U -- Yes --> PB[PIPELINE BLOCKED]
+    U -- No --> X[Fix every blocking finding]
+    X --> RT[Run suite, dexter first if behaviour changed]
+    RT --> RW[Re-run affected Wave 2 audits]
+    RW --> J
+    J -- No blocking finding --> H[hancock cleanup]
+    H --> C[curator AI context]
+    C --> O[otis documentation]
+    O --> F[Final summary]
 ```
-*Figure: validation gates are selected from the changed files and the risk profile, not run unconditionally.*
+*Figure: the test wave runs first, the audit wave runs in parallel, and the editing agents run one at a time.*
 
-If an agent edits source, tests, configuration, dependencies, generated UI, permissions, or agent behavior, those edits count as a new change. The affected gates run again from the earliest one. Edits that only change human-facing Markdown do not trigger a new run.
+If an agent edits source, tests, configuration, dependencies, generated UI, permissions, or agent behavior, those edits count as a new change. The main session re-runs the affected gates from the earliest affected wave, and it finishes that revalidation before the next Wave 3 agent starts. Edits that `curator` makes to agent or rule files re-run only the review by `hermione`, not the tests. Edits that only change human-facing Markdown do not trigger a new run.
 
 ## User knowledge profile
 

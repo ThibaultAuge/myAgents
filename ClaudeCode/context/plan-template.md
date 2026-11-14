@@ -1,5 +1,5 @@
 ---
-description: Use when asking planning questions or writing a plan file.
+description: Use when asking planning questions, writing a plan file, or deciding which plan lots can be delegated.
 ---
 
 # Plan template and planning reference
@@ -59,6 +59,20 @@ Write the plan file from this template.
 ### Files to Create/Modify
 1. `path/to/file.ext` — [purpose]
 
+## Work Breakdown
+
+*(Always present. A plan with no separable parts writes "Single lot — main session" here and nothing else)*
+
+### Contract (main session, first)
+- [frozen interface: shared types, OpenAPI spec, DTOs, entity mapping]
+- **Contract commit:** [yes — a lot uses `isolation: "worktree"` / no — all lots share the checkout]
+
+### Lots
+
+| Lot | Files (exclusive) | Depends on | Delegable | Acceptance check |
+|---|---|---|---|---|
+| [A] | [`path/…`] | [contract — the only allowed value for a delegable lot / lot X] | [yes, same checkout / yes, worktree / no — reason] | [test or command, scoped to the lot's files] |
+
 ## Creative Alternatives Considered
 
 *(Only if `butt-stallion` was consulted)*
@@ -103,3 +117,37 @@ If `neo` flagged CRITICAL or HIGH findings, they are addressed in the approach a
 - **XL** — architectural change, new systems, high uncertainty, over a week
 
 When in doubt, estimate higher.
+
+## Delegation guide
+
+Fills the plan's Work Breakdown. `implementation.md` delegates only the lots marked
+Delegable there. A lot is delegable only if all four hold:
+
+1. Its sole dependency is the contract. A lot that depends on another lot is
+   implemented by the main session after that lot is integrated.
+2. The lot shares no file with another lot.
+3. It is verifiable on its own: its tests or a command. For a same-checkout lot, scope
+   that command to the lot's own files where the toolchain allows, since other lots are
+   editing the same tree.
+4. It is large enough to beat the cost of the brief plus integration.
+
+Mark a lot "yes, worktree" only when it runs commands with shared state (migrations
+against a local database, code generation); then set Contract commit to yes. Approving
+the plan then authorises the contract commit, each worktree lot's commit on its harness
+branch, and the merges of those branches into the feature branch. Otherwise lots share the checkout and the
+contract is not committed before they run.
+
+Patterns:
+
+- **API** — contract = the spec or the shared types; one lot for the provider, one lot
+  for the consumer.
+- **Database schema change** (e.g. Doctrine) — contract = the target schema (entity
+  fields and types). Lot A = entities + migration; generating and applying the migration
+  stays inside lot A because it depends on the mapping, and makes lot A a worktree lot.
+  Lot B = repositories, queries, and services consuming the entities.
+
+Anti-patterns, kept with the main session:
+
+- A small, tightly coupled change.
+- Shared hotspot files: i18n catalogs, route registration, DI/service config.
+- Dependency installs and manifest or lockfile edits.

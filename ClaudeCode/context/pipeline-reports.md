@@ -1,14 +1,25 @@
 ---
-description: Use when invoking a quality-gate agent, reporting a blocked pipeline or loop, or writing the implementation final summary.
+description: Use when invoking a quality-gate agent or a lot subagent, reporting a blocked pipeline or loop, or writing the implementation final summary.
 ---
 
 # Pipeline inputs and reports
 
 On-demand companion to `~/.claude/rules/implementation.md`. The rule decides which gates
-run, in what order, and when to stop; this file holds what to pass each agent and the
+run, in which wave, and when to stop; this file holds what to pass each agent and the
 exact report formats.
 
 ## What to pass each agent
+
+- **lot subagent (`general-purpose`)** — the plan file path and the lot's Work Breakdown
+  row and spec, plus the plan's Edge Cases and Security Constraints entries relevant to
+  the lot; the contract file paths; the exclusive list of the lot's files (AI-context
+  files may be on it) and the files it must not touch; the acceptance command, scoped to
+  the lot's files for a same-checkout lot; a pointer to the project root context file
+  (`AGENTS.md` or `CLAUDE.md`). State explicitly that it is a lot subagent bound by the
+  lot subagent guard in `implementation.md` (Contract and lots). For a worktree lot, add: first check
+  that the contract files are present and, if not, stop and report; commit the work on
+  the branch the harness created. Expected return: files changed, deviations from the
+  contract, open questions, and the branch name for a worktree lot.
 
 - **`dexter`** — the modified files and a summary of what changed
 - **`hermione`** — the modified files only, not the full codebase
@@ -58,6 +69,8 @@ Recommended next step: [honest assessment of what a human should do]
 **Changes made**
 Brief description of what was implemented.
 
+**Work split:** [contract — main session; lot A — subagent; lot B — main session | none]
+
 **Pipeline results**
 
 | Step | Status | Notes |
@@ -72,7 +85,8 @@ Brief description of what was implemented.
 | Documentation | ✅ / ⏭ / ⚠️ / 🚫 | |
 
 **Non-blocking findings to address later**
-The 🟡 and 🔵 findings from review and security that were not fixed in this pass.
+The 🟡 and 🔵 findings from review and security that were not fixed in this pass, and any
+conflict between two Wave 2 audits with the severity that was followed.
 
 **Ready to ship:** YES / NO
 

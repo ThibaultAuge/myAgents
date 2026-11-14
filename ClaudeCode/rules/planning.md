@@ -18,6 +18,26 @@ Before asking anything, assess the request and separate:
 Check the user knowledge profile for the domains involved and pitch questions and
 explanations to match, probing when the probe conditions in `user-knowledge.md` are met.
 
+## Phase 1b — Parallel discovery
+
+List the unknowns found in Phase 1 that do not depend on the business objective. Each
+independent unknown that needs more than a handful of tool calls, or external content, goes to one agent: `Explore` for the
+codebase, or the research agent Phase 3 names for it. Launch them all in a single
+message, in the background, so they run while the Phase 2 questions are asked.
+
+Each brief states the goal, the scope (files or URLs), what is already ruled out, and
+the expected return format. Never state the expected conclusion: an agent handed a
+hypothesis tends to confirm it.
+
+Do not delegate:
+
+- a lookup whose target is already known — do it yourself;
+- an unknown whose answer conditions the others — run it first, sequentially;
+- an investigation that depends on a pending Phase 2 answer.
+
+If a Phase 2 answer makes a running agent's work moot, ignore its report; do not
+relaunch it.
+
 ## Phase 2 — Structured questioning
 
 Use the `AskUserQuestion` tool. Ask when:
@@ -44,12 +64,15 @@ question banks by domain.
 
 Write the plan once you have a clear business objective, an unambiguous technical
 approach (or the user's stated preference between approaches), known major
-constraints, and a clear UX direction (or the user's explicit trust in your judgment).
+constraints, a clear UX direction (or the user's explicit trust in your judgment), and
+every Phase 1b report that is not moot.
 
 ## Phase 3 — Agent consultation
 
 Consult a specialist agent only when it adds real value. A simple CRUD feature needs
-neither ideation nor threat modeling.
+neither ideation nor threat modeling. This table is the single source for which agent
+handles what. Research agents (`samuel-morse`, `oracle`) normally run in Phase 1b; the
+others run here, once the Phase 2 answers are in.
 
 | Signal | Agent | What to ask for |
 |---|---|---|
@@ -73,8 +96,9 @@ exposure.
 Save the plan to `plans/plan-<feature-name>-<date>.md`.
 
 Before writing the plan, read `~/.claude/context/plan-template.md`. It holds the plan
-template to fill in and the complexity estimation guide for its Complexity Estimate
-section.
+template to fill in, the complexity estimation guide for its Complexity Estimate
+section, and the delegation guide for its Work Breakdown section. Every plan has a Work
+Breakdown; a change with no separable parts writes "Single lot — main session".
 
 Keep user knowledge profile signals pending in Plan mode; see `user-knowledge.md`.
 
@@ -85,6 +109,7 @@ Keep user knowledge profile signals pending in Plan mode; see `user-knowledge.md
 2. **Ask rather than assume** when requirements are ambiguous.
 3. **Progressive discovery** — do not jump to technical detail before the business
    objective is understood.
-4. **Specialist agents are optional** — call them only when they add real value.
+4. **Specialist agents are optional** — call them only when they add real value;
+   when they do, run independent discovery in parallel (Phase 1b).
 5. **Plans must be actionable** — specific enough to implement without a further
    round of clarification.
