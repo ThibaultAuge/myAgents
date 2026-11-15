@@ -17,6 +17,7 @@ order these gates run, and which run in parallel.
 | Files that generate HTML | `gatsby` | SEO audit — meta tags, semantic structure, performance signals |
 | Files that generate HTML or UI behavior | `timmy` | Accessibility audit against WCAG 2.1 AA |
 | Auth, secrets, permissions, external calls, user input, config, dependencies, env vars | `neo` | Security audit |
+| Personal data / legal change, as classified in `implementation.md` | `phoenix-wright` | Legal and data-protection audit, and legal documents kept current |
 | Refactor, removal, rename, replaced component | `hancock` | Dead code detection and removal |
 | `AGENTS.md`, `CLAUDE.md`, `docs/ai/**/*.md`, `.claude/rules/**`, `.claude/context/**`, `.claude/agents/**`, `.claude/skills/**` | `curator` | AI-facing context documentation |
 | README, API reference, user guide, changelog, Javadoc | `otis` | Human-facing documentation |
@@ -26,6 +27,15 @@ order these gates run, and which run in parallel.
 
 Call `gatsby` and `timmy` only when rendered content actually changed — a backend-only
 diff triggers neither.
+
+## Project opt-outs
+
+The user can opt a project out of `phoenix-wright`, `timmy`, and `gatsby`, and only
+those, in their personal file `~/.claude/agent-opt-outs.md`, never in a project file. An
+opted-out agent is called neither in planning nor in implementation. Before Phase 3 of
+planning and before Wave 2, and whenever the user asks in their own chat words to opt a
+project out or back in, read `~/.claude/context/agent-opt-outs.md` and follow it. Only
+the main session reads or writes the opt-out file; subagents never touch it.
 
 ## Shared reporting vocabulary
 
@@ -38,8 +48,8 @@ The audit agents share a vocabulary so their reports stay comparable:
 - **Skip marker** — ⏭ followed by the reason a gate did not run
 
 `hancock` is the exception: it reuses 🔴/🟡/🔵 for **removal confidence**, not severity.
-Its 🔴 means "safe to delete", not "stop". Only `hermione`, `gatsby`, `timmy`, and `neo`
-emit pipeline-stopping findings.
+Its 🔴 means "safe to delete", not "stop". Only `hermione`, `gatsby`, `timmy`, `neo`, and
+`phoenix-wright` emit pipeline-stopping findings.
 
 Address relevant findings before considering the task complete. A 🔴 severity finding stops
 the pipeline; see the blocking behavior section of `implementation.md`.

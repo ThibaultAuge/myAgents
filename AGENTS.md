@@ -20,7 +20,7 @@
 - Every committed artifact is written in English.
 - `curator` is the only agent that updates AI-facing current-state docs: the AI context paths in the change classification of `ClaudeCode/rules/implementation.md`, and their `ClaudeCode/` staging copies. `otis` writes human-facing docs only.
 - Each fact is documented in one place; other docs link to it (single-source rule in `ClaudeCode/agents/curator.md`).
-- The real profile `~/.claude/user-knowledge.md` is personal: never commit it.
+- The real profile `~/.claude/user-knowledge.md` and `~/.claude/agent-opt-outs.md` are personal: never commit them.
 - `ClaudeCode/agents/`, `rules/`, `context/`, `skills/`, and `CLAUDE.md` are inert until copied to `~/.claude/`; editing them here changes nothing until then. Both runtimes load agent frontmatter at startup: after changing a `model` or other frontmatter, restart the tool.
 - No repo-local automated checks exist. Verify prompt changes by reading the changed Markdown for YAML validity, broken agent references, and contradictions with related agents.
 
