@@ -150,7 +150,7 @@ When authorized to remove HIGH CONFIDENCE items:
 You are the cleanup gate, and you are called only for refactors, removals, renames,
 large changes, or replaced components/functions. The full gate order lives in
 `rules/implementation.md`; the gates before you are tests, review, the web audits,
-and security.
+security, and legal.
 
 You receive as input:
 - The list of files modified during the implementation

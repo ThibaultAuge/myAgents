@@ -73,6 +73,7 @@ flowchart TD
     Explore[Explore]
     Lots[general-purpose lots]
     Neo[neo]
+    Phoenix[phoenix-wright]
     Dexter[dexter]
     Hermione[hermione]
     Gatsby[gatsby]
@@ -90,6 +91,7 @@ flowchart TD
     Planning --> Butt
     Planning --> Samuel
     Planning --> Neo
+    Planning --> Phoenix
     Planning --> Oracle
     Planning --> Barbapapa
     Planning --> Explore
@@ -99,6 +101,7 @@ flowchart TD
     Quality --> Gatsby
     Quality --> Timmy
     Quality --> Neo
+    Quality --> Phoenix
     Quality --> Hancock
     Quality --> Curator
     Quality --> Otis
@@ -152,6 +155,7 @@ Subagents run in their own context and return a report to the main session. A su
 | `neo` | inherit | `ClaudeCode/agents/neo.md` | Performs security audits and threat-focused reviews. |
 | `oracle` | inherit | `ClaudeCode/agents/oracle.md` | Researches external documentation and advisories in an isolated context. |
 | `otis` | haiku | `ClaudeCode/agents/otis.md` | Writes human-facing documentation; Javadoc edits require an explicit request. |
+| `phoenix-wright` | inherit | `ClaudeCode/agents/phoenix-wright.md` | Audits personal-data processing, cookies, and third-party transfers for GDPR, ePrivacy, and French law, and checks that legal documents still match the code. The jurisdiction can be set per project. Read-only, no shell. |
 | `samuel-morse` | inherit | `ClaudeCode/agents/samuel-morse.md` | Probes real APIs with curl before integration work. |
 | `timmy` | haiku | `ClaudeCode/agents/timmy.md` | Audits HTML-generating files for accessibility; read-only, no shell. |
 | `turing` | haiku | `ClaudeCode/agents/turing.md` | Runs every numerical calculation through executed Python rather than model inference. |
@@ -185,10 +189,12 @@ A skill loads instructions into the current session and runs inline, rather than
 The second stage runs the quality gates once, on the integrated result. Each gate keeps its own trigger condition, and the gates run in three waves. A wave starts only when the previous one came back clean:
 
 - **Wave 1:** `dexter` writes the tests. The main session runs the suite, because `dexter` cannot run commands.
-- **Wave 2:** `hermione`, `gatsby`, `timmy`, and `neo` run in parallel. They read and report, and they do not edit. The main session waits for every report, then fixes all blocking findings.
+- **Wave 2:** `hermione`, `gatsby`, `timmy`, `neo`, and `phoenix-wright` run in parallel, each when its trigger applies. They read and report, and they do not edit. The main session waits for every report, then fixes all blocking findings. A blocking `phoenix-wright` finding goes to you first: you choose to fix it, waive it, or supply the missing business fact.
 - **Wave 3:** `hancock`, `curator`, and `otis` edit files, one at a time, in that order. `hancock` asks for confirmation before it deletes anything.
 
-The main session records the reason for every skipped gate in the final summary. The diagram shows the waves for one change.
+Legal documents shown to users, such as the terms of use, the privacy policy, and the legal notices, change only with wording you approve in chat.
+
+The main session records the reason for every skipped gate in the final summary, including gates you opted the project out of. The diagram shows the waves for one change.
 
 ```mermaid
 flowchart TD
@@ -199,10 +205,15 @@ flowchart TD
     S --> G[gatsby SEO]
     S --> T[timmy accessibility]
     S --> N[neo security]
+    S --> P["phoenix-wright legal"]
     R --> J{All Wave 2 reports in}
     G --> J
     T --> J
     N --> J
+    P --> J
+    J -- Legal blocking finding --> AskU["Ask user to fix, waive, or supply fact"]
+    AskU -- Waived --> H
+    AskU -- Fix or supplied fact --> X
     J -- Blocking finding --> U{Unfixable, incompatible, or repeated after 2 attempts}
     U -- Yes --> PB[PIPELINE BLOCKED]
     U -- No --> X[Fix every blocking finding]
@@ -217,6 +228,16 @@ flowchart TD
 *Figure: the test wave runs first, the audit wave runs in parallel, and the editing agents run one at a time.*
 
 If an agent edits source, tests, configuration, dependencies, generated UI, permissions, or agent behavior, those edits count as a new change. The main session re-runs the affected gates from the earliest affected wave, and it finishes that revalidation before the next Wave 3 agent starts. Edits that `curator` makes to agent or rule files re-run only the review by `hermione`, not the tests. Edits that only change human-facing Markdown do not trigger a new run.
+
+### Per-project opt-outs
+
+You can turn off `phoenix-wright`, `timmy`, or `gatsby` for one project. Ask the main session in chat, for example "disable phoenix-wright in this project", or "re-enable timmy" to undo it. If you give no reason, the main session asks for one.
+
+- **Where it is stored.** `~/.claude/agent-opt-outs.md`, a personal file on your machine. The project never holds the setting, because colleagues may still use these agents. Never commit this file.
+- **How a project is identified.** By its git `origin` remote, or by the main worktree path when the repository has no remote. The format and matching rules are in [`ClaudeCode/context/agent-opt-outs.md`](ClaudeCode/context/agent-opt-outs.md).
+- **Which agents.** Only `phoenix-wright`, `timmy`, and `gatsby`. The rule is in [`ClaudeCode/rules/quality-agents.md`](ClaudeCode/rules/quality-agents.md).
+- **Where it shows.** A skipped gate appears in the final summary as `⏭ opted out by user`, with the reason and the project key.
+- **Jurisdiction.** The same file can hold a `Jurisdiction:` line for one project. `phoenix-wright` then applies that jurisdiction instead of its default: GDPR, ePrivacy, and French law.
 
 ## User knowledge profile
 

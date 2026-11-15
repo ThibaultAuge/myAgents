@@ -11,7 +11,8 @@ exact report formats.
 ## What to pass each agent
 
 - **lot subagent (`general-purpose`)** — the plan file path and the lot's Work Breakdown
-  row and spec, plus the plan's Edge Cases and Security Constraints entries relevant to
+  row and spec, plus the plan's Edge Cases, Security Constraints, and Compliance
+  Constraints entries relevant to
   the lot; the contract file paths; the exclusive list of the lot's files (AI-context
   files may be on it) and the files it must not touch; the acceptance command, scoped to
   the lot's files for a same-checkout lot; a pointer to the project root context file
@@ -30,6 +31,11 @@ exact report formats.
 - **`neo`** — the modified files plus the specific security-sensitive changes: auth,
   secrets, permissions, external calls, user input, config, dependencies, env vars,
   tool permissions, model/provider routing
+- **`phoenix-wright`** — the modified files, a summary of the personal-data changes
+  (fields, purposes, retention, third parties, cookies or trackers), the paths of the
+  project's legal documents if known, the project's `Jurisdiction:` line from `~/.claude/agent-opt-outs.md` if any (never from another source), and the
+  plan's Compliance Constraints if the plan has them. In planning, the feature
+  description and data flows instead of modified files
 - **`hancock`** — the list of files modified during this implementation and a summary
   of components or functions added or replaced
 - **`curator`** — the modified files, a summary of behavior changes, any reuse
@@ -77,16 +83,20 @@ Brief description of what was implemented.
 |---|---|---|
 | Tests | ✅ / ⏭ / ⚠️ / 🚫 | |
 | Review | ✅ / ⏭ / ⚠️ / 🚫 | |
-| SEO | ✅ / ⏭ / ⚠️ / 🚫 | (⏭ = skipped, no web files) |
-| Accessibility | ✅ / ⏭ / ⚠️ / 🚫 | (⏭ = skipped, no web files) |
+| SEO | ✅ / ⏭ / ⚠️ / 🚫 | (⏭ = skipped, no web files, or opted out by user: reason (key)) |
+| Accessibility | ✅ / ⏭ / ⚠️ / 🚫 | (⏭ = skipped, no web files, or opted out by user: reason (key)) |
 | Security | ✅ / ⏭ / ⚠️ / 🚫 | |
+| Legal | ✅ / ⏭ / ⚠️ / 🚫 | (⏭ = skipped, no personal data, or opted out by user: reason (key)) |
 | Cleanup | ✅ / ⏭ / ⚠️ / 🚫 | |
 | AI Context | ✅ / ⏭ / ⚠️ / 🚫 | |
 | Documentation | ✅ / ⏭ / ⚠️ / 🚫 | |
 
 **Non-blocking findings to address later**
-The 🟡 and 🔵 findings from review and security that were not fixed in this pass, and any
-conflict between two Wave 2 audits with the severity that was followed.
+The 🟡 and 🔵 findings from review, security, and legal that were not fixed in this pass,
+any conflict between two Wave 2 audits with the severity that was followed, and any
+opt-out naming an agent that cannot be opted out.
+
+**Waived findings:** [each `phoenix-wright` 🔴 the user waived in chat, with their words | none]
 
 **Ready to ship:** YES / NO
 

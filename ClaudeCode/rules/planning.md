@@ -18,6 +18,9 @@ Before asking anything, assess the request and separate:
 Check the user knowledge profile for the domains involved and pitch questions and
 explanations to match, probing when the probe conditions in `user-knowledge.md` are met.
 
+An agent the user opted this project out of is not consulted in Phase 3; see Project
+opt-outs in `quality-agents.md`.
+
 ## Phase 1b — Parallel discovery
 
 List the unknowns found in Phase 1 that do not depend on the business objective. Each
@@ -79,6 +82,7 @@ others run here, once the Phase 2 answers are in.
 | New external API integration | `samuel-morse` | Probe endpoints, auth, response structure, error catalog |
 | User-facing feature with creative latitude | `butt-stallion` | Original UI/UX or architectural ideas |
 | Auth, sensitive data, external calls | `neo` | Preventive threat modeling, security constraints |
+| Personal data / legal change, as classified in `implementation.md` | `phoenix-wright` | Compliance constraints, including the legal documents to update |
 | Current documentation, examples, or any external web content | `oracle` | Research brief with sources |
 | HTML/CSS template to produce from a mockup or screenshot | `barbapapa` | Reusable primitives plus `demo.html` and `style.css` |
 

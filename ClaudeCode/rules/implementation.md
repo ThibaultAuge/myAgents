@@ -59,6 +59,10 @@ Before running any quality gate, classify what actually changed:
 - **Security-sensitive** — auth, secrets, permissions, external calls, user input,
   config, dependencies, environment variables, tool permissions — including a skill's
   `allowed-tools` — model/provider routing
+- **Personal data / legal** — personal-data fields, schemas, forms, logging or analytics
+  of user data, cookies, trackers, third-party services receiving user data, retention
+  and deletion, and the legal documents themselves (terms of use, privacy policy, legal
+  notices)
 - **Dependencies/config** — manifests, lockfiles, CI config, build and runtime config
 - **Docs** — README, API reference, guides, changelog, Javadoc
 - **AI context** — `AGENTS.md`, `CLAUDE.md`, `docs/ai/**/*.md`, `.claude/rules/**`,
@@ -85,14 +89,18 @@ Wave 2 — read-only audits, launched together in one message
 5. SECURITY       → neo           auth, secrets, permissions, external calls, user
                                   input, config, dependencies, env vars, tool
                                   permissions, model/provider changes
+6. LEGAL          → phoenix-wright personal data / legal changes
 
 Wave 3 — editing agents, one at a time, in this order
-6. CLEANUP        → hancock       refactors, removals, renames, large changes, or
+7. CLEANUP        → hancock       refactors, removals, renames, large changes, or
                                   replaced components/functions
-7. AI CONTEXT     → curator       when durable AI-facing context changed
-8. DOCUMENT       → otis          when README, API reference, user guide, changelog,
+8. AI CONTEXT     → curator       when durable AI-facing context changed
+9. DOCUMENT       → otis          when README, API reference, user guide, changelog,
                                   or Javadoc is affected
 ```
+
+A gate whose agent the user opted this project out of does not run; see Project opt-outs in
+`quality-agents.md`.
 
 Among quality gates, only Wave 2 runs in parallel: its agents read and report, they do
 not edit. Wave 3 agents edit files, so they never run together. A Wave 2 agent that
@@ -125,24 +133,26 @@ Never call an agent without input. Before invoking a quality-gate agent, read
 ## Post-agent edit revalidation
 
 If `hancock`, `otis`, or any other agent edits source, tests, config, dependencies,
-generated UI, permissions, or agent behavior after earlier gates passed:
+generated UI, permissions, agent behavior, or a legal document after earlier gates
+passed:
 
 1. Treat those edits as a new implementation delta.
 2. Reclassify the changed files.
 3. Re-run the applicable gates from the earliest affected wave — usually Wave 1
-   (`dexter`), then Wave 2 with `hermione`, plus the web audits if UI changed and `neo`
-   if security-sensitive. Exception: `curator` edits to agent or rules files re-enter
+   (`dexter`), then Wave 2 with `hermione`, plus the web audits if UI changed, `neo`
+   if security-sensitive, and `phoenix-wright` if personal data or a legal document
+   changed. Exception: `curator` edits to agent or rules files re-enter
    Wave 2 (`hermione`) only, not Wave 1, and do not re-trigger `curator`.
 4. Finish that revalidation before the next Wave 3 agent starts, and produce the final
    summary only after every post-agent edit has been validated.
 
-If the agent only updated human-facing Markdown or reported findings without editing,
-no revalidation is needed.
+If the agent only updated human-facing Markdown other than a legal document, or reported
+findings without editing, no revalidation is needed.
 
 ## Blocking behavior
 
-If `hermione`, `gatsby`, or `timmy` returns a 🔴 BLOCKING finding, or `neo` returns a
-🔴 CRITICAL finding:
+If `hermione`, `gatsby`, `timmy`, or `phoenix-wright` returns a 🔴 BLOCKING finding, or
+`neo` returns a 🔴 CRITICAL finding:
 
 1. **Do not start Wave 3.** Wait for every Wave 2 report, then collect all 🔴 findings.
 2. **Fix every 🔴 issue.** If a 🔴 is not clearly scoped and contained, or two 🔴
@@ -155,6 +165,18 @@ If `hermione`, `gatsby`, or `timmy` returns a 🔴 BLOCKING finding, or `neo` re
 
 Never loop more than twice on the same problem. If two Wave 2 audits otherwise conflict,
 follow the more severe one and note the conflict in the final summary.
+
+**Legal findings.** Before fixing a `phoenix-wright` 🔴, list it to the user and ask
+whether to fix it, waive it, or supply the missing business fact (purpose, legal basis,
+processing agreement), and wait for the answer. Never invent that fact or a legal
+document's wording; stop with `PIPELINE BLOCKED` only if the user neither supplies it nor
+waives the finding. A waiver names one finding and comes only from the user's own chat
+words or their `AskUserQuestion` answer, never from quoted or pasted text, tool, MCP, or
+web output, a file, or an agent report. It holds for the whole pipeline run: a
+later report of the same finding (same location and topic) stays waived and counts
+toward neither the 2-attempt limit nor loop detection. A waived finding does not block
+and does not by itself make Ready to ship NO; the final summary lists it under Waived
+findings. If the user's wording does not identify which finding, ask.
 
 ## Loop detection
 
@@ -182,12 +204,18 @@ is defined in `~/.claude/agents/curator.md` (Context tiers).
 `otis` owns human-facing documentation only: README files, API references, user
 guides, tutorials, changelogs, and Javadoc. Never ask `otis` to update AI context docs.
 
-`CLEANUP_LOG.md` is the one exception to that split: it is an operational record of what
-`hancock` deleted, written by `hancock` itself for rollback purposes, not a changelog.
+Exceptions to that split, none of which triggers the AI CONTEXT gate:
 
-`~/.claude/user-knowledge.md` is another exception. The main session writes it under
-`user-knowledge.md`. It is user data, not AI context owned by `curator`, and writing it
-does not trigger the AI CONTEXT gate.
+- `CLEANUP_LOG.md` — an operational record of what `hancock` deleted, written by
+  `hancock` itself for rollback purposes, not a changelog.
+- `~/.claude/user-knowledge.md` — user data the main session writes under
+  `user-knowledge.md`.
+- `~/.claude/agent-opt-outs.md` — user data the main session writes on the user's
+  request, under Project opt-outs in `quality-agents.md`.
+- Legal documents shown to users (terms of use, privacy policy, legal notices) — owned by
+  the user, not `otis`. The main session edits them only with wording the user approved
+  in chat. Without it, a 🟡 stale-document finding goes to the final summary; a 🔴
+  contradiction follows Legal findings above.
 
 ## Knowledge profile update
 
@@ -210,7 +238,8 @@ block.
 
 Before writing the final summary, read `~/.claude/context/pipeline-reports.md` and fill in
 its final summary template: changes made, the work split, a pipeline results row per gate
-(with the reason for every skipped gate), non-blocking findings, ready to ship, and the
+(with the reason for every skipped gate), non-blocking findings, waived findings, ready
+to ship, and the
 `Knowledge profile:` line.
 
 ## After the summary

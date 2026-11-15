@@ -20,6 +20,11 @@ requirements; deployment constraints (cloud provider, CI/CD, environments).
 patterns (modal, inline, wizard, drag-drop); accessibility requirements (WCAG level,
 screen reader support); device support (desktop-only, mobile-first, responsive).
 
+**Data and compliance** — which personal data is collected, and why each field is
+needed; audience (public, internal, personal use only); jurisdiction; third parties
+receiving the data; legal documents shown to users (terms of use, privacy policy,
+legal notices).
+
 ## Plan template
 
 Write the plan file from this template.
@@ -86,6 +91,15 @@ Write the plan file from this template.
 - [Security rule]
 
 If `neo` flagged CRITICAL or HIGH findings, they are addressed in the approach above.
+
+## Compliance Constraints
+
+*(Only if `phoenix-wright` was consulted)*
+
+- [Compliance rule: purpose, minimisation, legal basis, retention, consent]
+- **Legal documents to update:** [document — what it must now say | none]
+
+If `phoenix-wright` flagged BLOCKING issues, they are addressed in the approach above.
 
 ## Performance Considerations
 
