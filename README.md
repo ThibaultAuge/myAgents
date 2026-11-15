@@ -71,6 +71,7 @@ flowchart TD
     Oracle[oracle]
     Barbapapa[barbapapa]
     Explore[Explore]
+    Grumpy[grumpy]
     Lots[general-purpose lots]
     Neo[neo]
     Phoenix[phoenix-wright]
@@ -95,6 +96,7 @@ flowchart TD
     Planning --> Oracle
     Planning --> Barbapapa
     Planning --> Explore
+    Planning --> Grumpy
 
     Quality --> Dexter
     Quality --> Hermione
@@ -118,7 +120,7 @@ Rules are Markdown files that the main session follows. They do not run as separ
 | File | Role |
 |---|---|
 | `CLAUDE.md` | Top-level workflow. Imports `~/.claude/user-knowledge.md`. |
-| `rules/planning.md` | Plan mode. Clarifies requirements, runs independent discovery in parallel with the questions, consults specialists, writes the plan to `plans/` with a Work Breakdown, and stops at human approval. |
+| `rules/planning.md` | Plan mode. Clarifies requirements, runs independent discovery in parallel with the questions, consults specialists, writes the plan to `plans/` with a Work Breakdown, has `grumpy` challenge the plan before approval, and stops at human approval. |
 | `rules/implementation.md` | Executes an approved plan. Delegates the lots the plan marks delegable, classifies changes, runs the quality gates in three waves, and writes the final summary. |
 | `rules/quality-agents.md` | Routes changed files to subagents and defines the shared severity vocabulary. |
 | `rules/user-knowledge.md` | Rules for the user knowledge profile. |
@@ -149,6 +151,7 @@ Subagents run in their own context and return a report to the main session. A su
 | `butt-stallion` | inherit | `ClaudeCode/agents/butt-stallion.md` | Generates unconventional ideas during planning. |
 | `curator` | inherit | `ClaudeCode/agents/curator.md` | Maintains AI-facing current-state documentation and agent context files. |
 | `dexter` | inherit | `ClaudeCode/agents/dexter.md` | Writes unit, integration, and API contract tests for modified code. It cannot run them; the main session runs the suite. |
+| `grumpy` | inherit | `ClaudeCode/agents/grumpy.md` | Adversarial plan critic, used only during planning. Runs after the plan file is written and before approval. It gives a pre-mortem, checks the plan's assumptions against the code, argues for the strongest alternative, and lists gaps. Read-only, no shell. |
 | `gatsby` | haiku | `ClaudeCode/agents/gatsby.md` | Audits HTML-generating files for SEO; read-only, no shell. |
 | `hancock` | inherit | `ClaudeCode/agents/hancock.md` | Finds dead code and handles confirmed safe cleanup. |
 | `hermione` | inherit | `ClaudeCode/agents/hermione.md` | Reviews code for correctness, performance, and maintainability. |

@@ -1,5 +1,5 @@
 ---
-description: Use when asking planning questions, writing a plan file, or deciding which plan lots can be delegated.
+description: Use when asking planning questions, writing a plan file or recording a plan critique in it, or deciding which plan lots can be delegated.
 ---
 
 # Plan template and planning reference
@@ -51,6 +51,14 @@ Write the plan file from this template.
 ### Out of Scope
 - [Explicitly what NOT to build]
 
+### Success Criteria
+- [Observable, checkable outcome that means "done"]
+
+## Assumptions
+
+- [What the plan takes as true without having verified it — about the code, the
+  environment, the data, or the user's needs — and how it could be checked]
+
 ## Technical Approach
 
 ### Architecture
@@ -78,11 +86,12 @@ Write the plan file from this template.
 |---|---|---|---|---|
 | [A] | [`path/…`] | [contract — the only allowed value for a delegable lot / lot X] | [yes, same checkout / yes, worktree / no — reason] | [test or command, scoped to the lot's files] |
 
-## Creative Alternatives Considered
+## Alternatives Considered
 
-*(Only if `butt-stallion` was consulted)*
+*(Always present: at least the strongest rejected approach. Include `butt-stallion`'s ideas
+here if it was consulted)*
 
-[1-3 ideas explored, with brief notes on why the chosen approach won]
+- **[Alternative]** — [why the chosen approach won, and when this one would win instead]
 
 ## Security Constraints
 
@@ -115,11 +124,35 @@ If `phoenix-wright` flagged BLOCKING issues, they are addressed in the approach 
 
 - [Edge case and how to handle it]
 
+## Risks
+
+| Risk | Likelihood | Impact | Mitigation |
+|---|---|---|---|
+| [What could go wrong] | [low / medium / high] | [consequence] | [how the plan prevents or absorbs it] |
+
+## Reversibility & Rollback
+
+- **Hard-to-undo decisions:** [anything that reverting the commit does not undo, e.g. a
+  schema or data-format change, a public API others build on, a migration, deleted or
+  overwritten data, a message or other external side effect — and why it is needed | none]
+- **Rollback:** [how to back out if the change fails after release]
+
 ## Complexity Estimate
 
 **Size:** XS / S / M / L / XL
 
 **Justification:** [one sentence]
+
+## Objections Considered
+
+*(Only if `grumpy` was consulted. Written in the planner's own words. A record of the
+planning debate: implementation follows the plan above, not this table)*
+
+| Objection | Severity | Resolution |
+|---|---|---|
+| [short title] | [🔴 / 🟡 / 🔵] | [accepted — what changed / rejected — reason / asked — user's answer] |
+
+**Verdict:** [grumpy's verdict, and the run count if it ran twice]
 ```
 
 ## Complexity estimation guide
