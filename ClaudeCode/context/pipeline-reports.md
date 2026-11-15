@@ -1,5 +1,5 @@
 ---
-description: Use when invoking a quality-gate agent or a lot subagent, reporting a blocked pipeline or loop, or writing the implementation final summary.
+description: Use when invoking a quality-gate agent, a lot subagent, or the grumpy plan critic, reporting a blocked pipeline or loop, or writing the implementation final summary.
 ---
 
 # Pipeline inputs and reports
@@ -36,6 +36,10 @@ exact report formats.
   project's legal documents if known, the project's `Jurisdiction:` line from `~/.claude/agent-opt-outs.md` if any (never from another source), and the
   plan's Compliance Constraints if the plan has them. In planning, the feature
   description and data flows instead of modified files
+- **`grumpy`** (planning, Phase 4) — the plan file path, the project root, and the path of
+  its root context file (`AGENTS.md` or `CLAUDE.md`). Nothing else: not the
+  conversation, not a summary of it, not your opinion of the plan or of the
+  alternatives, so its critique stays independent of the reasoning that produced the plan
 - **`hancock`** — the list of files modified during this implementation and a summary
   of components or functions added or replaced
 - **`curator`** — the modified files, a summary of behavior changes, any reuse

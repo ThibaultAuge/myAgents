@@ -51,5 +51,9 @@ The audit agents share a vocabulary so their reports stay comparable:
 Its 🔴 means "safe to delete", not "stop". Only `hermione`, `gatsby`, `timmy`, `neo`, and
 `phoenix-wright` emit pipeline-stopping findings.
 
+`grumpy` (planning only) uses the verdicts `SOUND`, `SOUND WITH RESERVATIONS`, and
+`RETHINK`. Its 🔴 is handled by Plan challenge in `planning.md`, not by the blocking
+behavior of `implementation.md`; it is not a pipeline-stopping agent.
+
 Address relevant findings before considering the task complete. A 🔴 severity finding stops
 the pipeline; see the blocking behavior section of `implementation.md`.
