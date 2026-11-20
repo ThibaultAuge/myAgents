@@ -37,6 +37,17 @@ planning and before Wave 2, and whenever the user asks in their own chat words t
 project out or back in, read `~/.claude/context/agent-opt-outs.md` and follow it. Only
 the main session reads or writes the opt-out file; subagents never touch it.
 
+## Reviewing a pull request
+
+To review someone else's pull request, the user runs the `pr-review` skill:
+`/pr-review <PR URL | number> [@org/team] [--tests]`. It reuses this routing read-only: the
+PR's GitHub checks stand for the tests, a local install, test, and typecheck run only with
+`--tests` (it executes the PR's code), then the Wave 2 audits, never a Wave 3 editing agent nor
+`dexter`. It writes nothing to GitHub and stops on
+none of its findings: it regrades them on its own Critical / Major / Minor scale, defined in
+the skill, and prints a report with a merge verdict. That scale is separate from the shared
+vocabulary below: its 🟠 means Major, not `neo` HIGH.
+
 ## Shared reporting vocabulary
 
 The audit agents share a vocabulary so their reports stay comparable:
