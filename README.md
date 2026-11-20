@@ -131,7 +131,7 @@ The earlier OpenCode orchestrators map to these rules and to built-in features:
 
 - `Bob the Builder` → `rules/implementation.md`
 - `Dora the Explorer` → `rules/planning.md`
-- `Argus` → no Claude Code agent. Use the built-in `/code-review` and `/security-review` skills.
+- `Argus` → the `pr-review` skill (see Skills). The built-in `/code-review` and `/security-review` skills remain available for a local branch.
 
 ### Documentation tiers
 
@@ -175,13 +175,14 @@ A skill loads instructions into the current session and runs inline, rather than
 |---|---|---|
 | `jira-comment` | `ClaudeCode/skills/jira-comment/SKILL.md` | Drafts a short English status comment for a Jira ticket from the session, the branch, and the open pull request. It pre-approves a fixed list of read-only `git` and `gh` commands and prints the comment. It never reads from or writes to Jira. Run it as `/jira-comment [TICKET-KEY]`. |
 | `knowledge` | `ClaudeCode/skills/knowledge/SKILL.md` | Displays or corrects the user knowledge profile. `/knowledge` shows the profile, `/knowledge <domain> <level>` sets a level from 0 to 4, and `/knowledge forget <domain>` removes a row. It has no `allowed-tools` grant and writes only `~/.claude/user-knowledge.md`. |
+| `pr-review` | `ClaudeCode/skills/pr-review/SKILL.md` | Reviews someone else's GitHub pull request, read-only. It checks the PR out in a temporary worktree with Git hooks, symlinks, and the LFS filter disabled, so the checkout runs none of the PR's code. It relies on the PR's GitHub checks for tests; add `--tests` to also run the PR's install, tests, and typecheck locally. It runs the read-only audit agents that apply, checks the reviewed repository's own rules, and verifies every finding. It prints one report in your language: what the PR is meant to do, findings graded Critical (never merge), Major (merge only by accepting the risk), or Minor, each tagged with its code owners, any gross mismatch with the request, and a merge verdict. It never writes to GitHub. It pre-approves only `gh pr view` and `gh issue view`; the `git` commands still prompt. Run it as `/pr-review <PR URL or number> [@org/team] [--tests]`. |
 
 ### Notes
 
 - Filenames are kebab-case and match the `name:` field exactly.
 - `oracle` is the only agent with web tools. The main session also has web tools. Its purpose is **isolation**: it reads external content in a separate context and returns a structured brief, which limits prompt-injection exposure.
 - `turing` forces calculations through a tool instead of model inference. The implementation rules require it for every numeric result.
-- Every agent and skill is named in the rules, so the main session can trigger it. `jira-comment` is named in `rules/implementation.md`, and `knowledge` in `rules/user-knowledge.md`.
+- Every agent and skill is named in the rules, so the main session can trigger it. `jira-comment` is named in `rules/implementation.md`, `knowledge` in `rules/user-knowledge.md`, and `pr-review` in `rules/quality-agents.md`.
 - Copying a skill to `~/.claude/skills/` makes it available in every Claude Code project on that machine. Coordinate with teammates if several projects share one workstation.
 - Copies in `~/.claude/` are not updated automatically. Each skill has a `metadata.version` field in its frontmatter. Compare the version of a deployed copy with the staged one to detect a stale copy.
 
