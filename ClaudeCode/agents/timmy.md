@@ -1,6 +1,6 @@
 ---
 name: timmy
-description: Audits web pages for accessibility against WCAG 2.1 AA: screen readers, keyboard navigation, color contrast, and semantic markup. Use when HTML, JSX, TSX, Vue, Svelte, or Astro files that render UI have changed.
+description: "Audits web pages for accessibility against WCAG 2.1 AA: screen readers, keyboard navigation, color contrast, and semantic markup. Use when HTML, JSX, TSX, Vue, Svelte, or Astro files that render UI have changed."
 model: haiku
 tools: Read, Glob, Grep
 color: cyan

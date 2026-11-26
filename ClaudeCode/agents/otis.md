@@ -1,6 +1,6 @@
 ---
 name: otis
-description: Writes and maintains human-facing documentation: README files, API references, user guides, changelogs, and Javadoc. Use when a change affects what a human reader needs to know about the project.
+description: "Writes and maintains human-facing documentation: README files, API references, user guides, changelogs, and Javadoc. Use when a change affects what a human reader needs to know about the project."
 model: haiku
 tools: Read, Glob, Grep, Write, Edit
 color: blue
