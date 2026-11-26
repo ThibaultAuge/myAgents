@@ -1,6 +1,6 @@
 ---
 name: gatsby
-description: Audits web pages for SEO: meta tags, semantic HTML, performance hints, and search engine best practices. Use when HTML, JSX, TSX, Vue, Svelte, or Astro files that render public content have changed.
+description: "Audits web pages for SEO: meta tags, semantic HTML, performance hints, and search engine best practices. Use when HTML, JSX, TSX, Vue, Svelte, or Astro files that render public content have changed."
 model: haiku
 tools: Read, Glob, Grep
 color: yellow

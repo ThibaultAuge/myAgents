@@ -1,6 +1,6 @@
 ---
 name: hancock
-description: Detects and removes dead code after modifications: unused files, imports, functions, and variables. Always asks for confirmation before deleting. Use after refactors, removals, renames, or when components were replaced.
+description: "Detects and removes dead code after modifications: unused files, imports, functions, and variables. Always asks for confirmation before deleting. Use after refactors, removals, renames, or when components were replaced."
 model: inherit
 tools: Read, Glob, Grep, Write, Edit, Bash
 color: pink
